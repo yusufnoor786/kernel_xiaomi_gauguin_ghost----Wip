@@ -6920,13 +6920,15 @@ static void dsi_display_handle_fifo_underflow(struct work_struct *work)
 		return;
 	}
 
-	DSI_DEBUG("handle DSI FIFO underflow error\n");
+	DSI_INFO("handle DSI FIFO underflow error\n");
+	SDE_EVT32(SDE_EVTLOG_FUNC_ENTRY);
 
 	dsi_display_clk_ctrl(display->dsi_clk_handle,
 			DSI_ALL_CLKS, DSI_CLK_ON);
 	dsi_display_soft_reset(display);
 	dsi_display_clk_ctrl(display->dsi_clk_handle,
 			DSI_ALL_CLKS, DSI_CLK_OFF);
+	SDE_EVT32(SDE_EVTLOG_FUNC_EXIT);
 
 	mutex_unlock(&display->display_lock);
 }
@@ -6959,7 +6961,9 @@ static void dsi_display_handle_fifo_overflow(struct work_struct *work)
 		return;
 	}
 
-	DSI_DEBUG("handle DSI FIFO overflow error\n");
+	DSI_INFO("handle DSI FIFO overflow error\n");
+	SDE_EVT32(SDE_EVTLOG_FUNC_ENTRY);
+
 	dsi_display_clk_ctrl(display->dsi_clk_handle,
 			DSI_ALL_CLKS, DSI_CLK_ON);
 
@@ -7005,6 +7009,8 @@ static void dsi_display_handle_fifo_overflow(struct work_struct *work)
 end:
 	dsi_display_clk_ctrl(display->dsi_clk_handle,
 			DSI_ALL_CLKS, DSI_CLK_OFF);
+	SDE_EVT32(SDE_EVTLOG_FUNC_EXIT);
+
 	mutex_unlock(&display->display_lock);
 }
 
@@ -7036,7 +7042,8 @@ static void dsi_display_handle_lp_rx_timeout(struct work_struct *work)
 		return;
 	}
 
-	DSI_DEBUG("handle DSI LP RX Timeout error\n");
+	DSI_INFO("handle DSI LP RX Timeout error\n");
+	SDE_EVT32(SDE_EVTLOG_FUNC_ENTRY);
 
 	dsi_display_clk_ctrl(display->dsi_clk_handle,
 			DSI_ALL_CLKS, DSI_CLK_ON);
@@ -7083,6 +7090,8 @@ static void dsi_display_handle_lp_rx_timeout(struct work_struct *work)
 end:
 	dsi_display_clk_ctrl(display->dsi_clk_handle,
 			DSI_ALL_CLKS, DSI_CLK_OFF);
+	SDE_EVT32(SDE_EVTLOG_FUNC_EXIT);
+
 	mutex_unlock(&display->display_lock);
 }
 

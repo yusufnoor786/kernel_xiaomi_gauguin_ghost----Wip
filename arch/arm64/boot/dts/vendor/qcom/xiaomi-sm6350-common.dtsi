@@ -28,7 +28,7 @@
 
 	xiaomi_touch {
 		compatible = "xiaomi-touch";
-		status = "ok";
+		status = "disabled";
 		touch,name = "xiaomi-touch";
 	};
 

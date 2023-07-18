@@ -1122,7 +1122,7 @@ static const struct apsd_result *smblib_update_usb_type(struct smb_charger *chg)
 	/* if PD is active, APSD is disabled so won't have a valid result */
 	if (chg->pd_active) {
 		chg->real_charger_type = POWER_SUPPLY_TYPE_USB_PD;
-		chg->real_charger_type = POWER_SUPPLY_TYPE_USB_PD;
+		chg->usb_psy_desc.type = POWER_SUPPLY_TYPE_USB_PD;
 	} else if (chg->qc3p5_detected) {
 		chg->real_charger_type = POWER_SUPPLY_TYPE_USB_HVDCP_3P5;
 		chg->usb_psy_desc.type = POWER_SUPPLY_TYPE_USB_HVDCP_3P5;
@@ -7046,18 +7046,18 @@ void smblib_usb_plugin_locked(struct smb_charger *chg)
 		chg->hvdcp_recheck_status = false;
 		set_uv_wa(chg, 0);
 
-		/* Disable SW Thermal Regulation */
-		rc = smblib_set_sw_thermal_regulation(chg, false);
-		if (rc < 0)
-			smblib_err(chg, "Couldn't stop SW thermal regulation WA, rc=%d\n",
-				rc);
-
 		/* Disable SW conn therm Regulation */
 		if (chg->support_conn_therm){
 			rc = smblib_set_sw_conn_therm_regulation(chg, false);
 			if (rc < 0)
 				smblib_err(chg, "Couldn't start SW conn therm rc=%d\n", rc);
 		}
+
+		/* Disable SW Thermal Regulation */
+		rc = smblib_set_sw_thermal_regulation(chg, false);
+		if (rc < 0)
+			smblib_err(chg, "Couldn't stop SW thermal regulation WA, rc=%d\n",
+				rc);
 
 		if (chg->wa_flags & BOOST_BACK_WA) {
 			data = chg->irq_info[SWITCHER_POWER_OK_IRQ].irq_data;
@@ -7327,10 +7327,8 @@ static void update_sw_icl_max(struct smb_charger *chg, int pst)
 	/* TypeC rp med or high, use rp value */
 	typec_mode = smblib_get_prop_typec_mode(chg);
 	if (typec_rp_med_high(chg, typec_mode)) {
-		// rp_ua = get_rp_based_dcp_current(chg, typec_mode);
-		// vote(chg->usb_icl_votable, SW_ICL_MAX_VOTER, true, rp_ua);
-		vote(chg->usb_icl_votable, SW_ICL_MAX_VOTER, true,
-                    			DCP_CURRENT_UA);
+		rp_ua = get_rp_based_dcp_current(chg, typec_mode);
+		vote(chg->usb_icl_votable, SW_ICL_MAX_VOTER, true, rp_ua);
 		return;
 	}
 
@@ -7351,6 +7349,8 @@ static void update_sw_icl_max(struct smb_charger *chg, int pst)
 		vote(chg->usb_icl_votable, SW_ICL_MAX_VOTER, false, 0);
 		break;
 	case POWER_SUPPLY_TYPE_USB_CDP:
+		// rp_ua = get_rp_based_dcp_current(chg, typec_mode);
+		// vote(chg->usb_icl_votable, SW_ICL_MAX_VOTER, true, rp_ua);
 		vote(chg->usb_icl_votable, SW_ICL_MAX_VOTER, true,
 					CDP_CURRENT_UA);
 		break;
